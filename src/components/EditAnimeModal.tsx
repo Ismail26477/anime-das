@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
-import { X, Plus, Trash2, Subtitles, Link, Upload, ChevronDown, ChevronUp, Play } from 'lucide-react';
-import { ANIME_GENRES, SUPPORTED_PLATFORMS, SUBTITLE_LANGUAGES } from '../types/anime';
+import { X } from 'lucide-react';
+import { SUPPORTED_PLATFORMS, SUBTITLE_LANGUAGES } from '../types/anime';
 import { AnimeWithDetails } from '../hooks/useLocalAnime';
 
 interface EditAnimeModalProps {
@@ -15,7 +15,6 @@ const EditAnimeModal: React.FC<EditAnimeModalProps> = ({ anime, onUpdate, onClos
     description: anime.description,
     synopsis: anime.synopsis,
     thumbnail_url: anime.thumbnail_url || '',
-    genres: anime.genres,
     rating: anime.rating,
     release_year: anime.release_year,
     status: anime.status,
@@ -39,15 +38,6 @@ const EditAnimeModal: React.FC<EditAnimeModalProps> = ({ anime, onUpdate, onClos
     } finally {
       setLoading(false);
     }
-  };
-
-  const handleGenreToggle = (genre: string) => {
-    setFormData(prev => ({
-      ...prev,
-      genres: prev.genres.includes(genre)
-        ? prev.genres.filter(g => g !== genre)
-        : [...prev.genres, genre]
-    }));
   };
 
   return (
@@ -184,30 +174,12 @@ const EditAnimeModal: React.FC<EditAnimeModalProps> = ({ anime, onUpdate, onClos
             />
           </div>
 
-          <div>
-            <label className="block text-sm font-medium text-gray-300 mb-3">
-              Genres (select multiple)
-            </label>
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-2 max-h-32 overflow-y-auto bg-gray-700 p-3 rounded-lg">
-              {ANIME_GENRES.map(genre => (
-                <label key={genre} className="flex items-center space-x-2 cursor-pointer hover:bg-gray-600 p-1 rounded">
-                  <input
-                    type="checkbox"
-                    checked={formData.genres.includes(genre)}
-                    onChange={() => handleGenreToggle(genre)}
-                    className="text-purple-500 bg-gray-700 border-gray-600 rounded focus:ring-purple-500"
-                  />
-                  <span className="text-sm text-gray-300">{genre}</span>
-                </label>
-              ))}
-            </div>
-          </div>
 
           <div className="bg-blue-500/10 border border-blue-500/30 rounded-lg p-4">
-            <h3 className="text-sm font-medium text-blue-400 mb-2">📝 Note about Episodes & Links:</h3>
+            <h3 className="text-sm font-medium text-blue-400 mb-2">📝 Note about Episodes & Genres:</h3>
             <p className="text-xs text-blue-300">
-              Episode-specific details and links are managed separately. This form only updates the basic anime information. 
-              To add or modify episode links, use the "Bulk Upload" feature or contact support for advanced episode management.
+              Episode-specific details and genres are managed separately. This form updates basic anime information. 
+              To add or modify episode links or genres, use the dedicated management features or contact support.
             </p>
           </div>
 
