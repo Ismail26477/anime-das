@@ -7,6 +7,7 @@ interface AnimeListProps {
   anime: AnimeWithDetails[];
   onUpdateAnime: (id: string, anime: Partial<AnimeWithDetails>) => void;
   onDeleteAnime: (id: string) => void;
+  onAddEpisodes?: (animeId: string, episodes: any[]) => Promise<void>;
   selectedAnime: string | null;
   setSelectedAnime: (id: string | null) => void;
   loading: boolean;
@@ -16,6 +17,7 @@ const AnimeList: React.FC<AnimeListProps> = ({
   anime, 
   onUpdateAnime, 
   onDeleteAnime, 
+  onAddEpisodes,
   selectedAnime, 
   setSelectedAnime,
   loading
@@ -142,6 +144,7 @@ const AnimeList: React.FC<AnimeListProps> = ({
               anime={anime}
               onUpdate={onUpdateAnime}
               onDelete={onDeleteAnime}
+              onAddEpisodes={onAddEpisodes}
               isExpanded={selectedAnime === anime.id}
               onToggleExpand={() => setSelectedAnime(selectedAnime === anime.id ? null : anime.id)}
               viewMode={viewMode}
