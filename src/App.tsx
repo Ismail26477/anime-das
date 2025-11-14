@@ -8,7 +8,15 @@ import { useSupabaseAnime } from "./hooks/useSupabaseAnime"
 import { LogOut } from "./components/Icons"
 
 function App() {
-  const { anime, loading: animeLoading, addAnime, updateAnime, deleteAnime, addLinksToAnime } = useSupabaseAnime()
+  const {
+    anime,
+    loading: animeLoading,
+    addAnime,
+    updateAnime,
+    deleteAnime,
+    addLinksToAnime,
+    addEpisodes,
+  } = useSupabaseAnime()
   const [currentPage, setCurrentPage] = useState("anime-list")
   const [selectedAnime, setSelectedAnime] = useState<string | null>(null)
 
@@ -24,6 +32,7 @@ function App() {
             anime={anime}
             onUpdateAnime={updateAnime}
             onDeleteAnime={deleteAnime}
+            onAddEpisodes={addEpisodes}
             selectedAnime={selectedAnime}
             setSelectedAnime={setSelectedAnime}
             loading={animeLoading}
@@ -41,6 +50,7 @@ function App() {
             anime={anime}
             onUpdateAnime={updateAnime}
             onDeleteAnime={deleteAnime}
+            onAddEpisodes={addEpisodes}
             selectedAnime={selectedAnime}
             setSelectedAnime={setSelectedAnime}
             loading={animeLoading}
