@@ -2,36 +2,34 @@
 
 import type React from "react"
 import { useState } from "react"
-import {
-  Star,
-  Calendar,
-  Play,
-  Edit,
-  Trash2,
-  ExternalLink,
-  ChevronDown,
-  ChevronUp,
-  Eye,
-  Subtitles,
-  Building2,
-  Clock,
-} from "lucide-react"
+import { Star, Calendar, Play, Edit, Trash2, ExternalLink, ChevronDown, ChevronUp, Eye, Subtitles, Building2, Clock, Plus } from 'lucide-react'
 import EditAnimeModal from "./EditAnimeModal"
+import AddEpisodesModal from "./AddEpisodesModal"
 import type { AnimeWithDetails } from "../hooks/useLocalAnime"
 
 interface AnimeCardProps {
   anime: AnimeWithDetails
   onUpdate: (id: string, anime: Partial<AnimeWithDetails>) => void
   onDelete: (id: string) => void
+  onAddEpisodes?: (animeId: string, episodes: any[]) => Promise<void>
   isExpanded: boolean
   onToggleExpand: () => void
   viewMode: "grid" | "list"
 }
 
-const AnimeCard: React.FC<AnimeCardProps> = ({ anime, onUpdate, onDelete, isExpanded, onToggleExpand, viewMode }) => {
+const AnimeCard: React.FC<AnimeCardProps> = ({
+  anime,
+  onUpdate,
+  onDelete,
+  onAddEpisodes,
+  isExpanded,
+  onToggleExpand,
+  viewMode,
+}) => {
   const [isEditModalOpen, setIsEditModalOpen] = useState(false)
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false)
   const [expandedEpisodes, setExpandedEpisodes] = useState<Set<string>>(new Set())
+  const [showAddEpisodesModal, setShowAddEpisodesModal] = useState(false)
 
   const handleDelete = () => {
     if (showDeleteConfirm) {
@@ -82,8 +80,9 @@ const AnimeCard: React.FC<AnimeCardProps> = ({ anime, onUpdate, onDelete, isExpa
             <img
               src={
                 anime.thumbnail_url ||
-                "https://images.pexels.com/photos/1040160/pexels-photo-1040160.jpeg?auto=compress&cs=tinysrgb&w=120&h=160&fit=crop"
-              }
+                "https://images.pexels.com/photos/1040160/pexels-photo-1040160.jpeg?auto=compress&cs=tinysrgb&w=120&h=160&fit=crop" ||
+                "/placeholder.svg"
+               || "/placeholder.svg"}
               alt={anime.title}
               className="w-20 h-28 rounded-lg object-cover flex-shrink-0"
             />
@@ -123,6 +122,13 @@ const AnimeCard: React.FC<AnimeCardProps> = ({ anime, onUpdate, onDelete, isExpa
                     className="p-2 text-gray-400 hover:text-purple-400 transition-colors"
                   >
                     <Eye className="h-4 w-4" />
+                  </button>
+                  <button
+                    onClick={() => setShowAddEpisodesModal(true)}
+                    className="p-2 text-gray-400 hover:text-green-400 transition-colors"
+                    title="Add Episodes"
+                  >
+                    <Plus className="h-4 w-4" />
                   </button>
                   <button
                     onClick={() => setIsEditModalOpen(true)}
@@ -272,6 +278,16 @@ const AnimeCard: React.FC<AnimeCardProps> = ({ anime, onUpdate, onDelete, isExpa
             </div>
           )}
         </div>
+
+        {showAddEpisodesModal && onAddEpisodes && (
+          <AddEpisodesModal
+            animeId={anime.id}
+            animeTitle={anime.title}
+            currentEpisodeCount={anime.episode_count}
+            onAddEpisodes={onAddEpisodes}
+            onClose={() => setShowAddEpisodesModal(false)}
+          />
+        )}
       </div>
     )
   }
@@ -282,8 +298,9 @@ const AnimeCard: React.FC<AnimeCardProps> = ({ anime, onUpdate, onDelete, isExpa
         <img
           src={
             anime.thumbnail_url ||
-            "https://images.pexels.com/photos/1040160/pexels-photo-1040160.jpeg?auto=compress&cs=tinysrgb&w=300&h=400&fit=crop"
-          }
+            "https://images.pexels.com/photos/1040160/pexels-photo-1040160.jpeg?auto=compress&cs=tinysrgb&w=300&h=400&fit=crop" ||
+            "/placeholder.svg"
+           || "/placeholder.svg"}
           alt={anime.title}
           className="w-full h-64 object-cover"
         />
@@ -297,6 +314,13 @@ const AnimeCard: React.FC<AnimeCardProps> = ({ anime, onUpdate, onDelete, isExpa
             className="p-2 bg-gray-900/80 rounded text-white hover:bg-purple-600 transition-colors"
           >
             {isExpanded ? <ChevronUp className="h-4 w-4" /> : <ChevronDown className="h-4 w-4" />}
+          </button>
+          <button
+            onClick={() => setShowAddEpisodesModal(true)}
+            className="p-2 bg-gray-900/80 rounded text-white hover:bg-green-600 transition-colors"
+            title="Add Episodes"
+          >
+            <Plus className="h-4 w-4" />
           </button>
           <button
             onClick={() => setIsEditModalOpen(true)}
@@ -450,6 +474,16 @@ const AnimeCard: React.FC<AnimeCardProps> = ({ anime, onUpdate, onDelete, isExpa
 
       {isEditModalOpen && (
         <EditAnimeModal anime={anime} onUpdate={onUpdate} onClose={() => setIsEditModalOpen(false)} />
+      )}
+
+      {showAddEpisodesModal && onAddEpisodes && (
+        <AddEpisodesModal
+          animeId={anime.id}
+          animeTitle={anime.title}
+          currentEpisodeCount={anime.episode_count}
+          onAddEpisodes={onAddEpisodes}
+          onClose={() => setShowAddEpisodesModal(false)}
+        />
       )}
     </div>
   )
