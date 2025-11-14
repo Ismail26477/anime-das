@@ -198,7 +198,6 @@ export function useSupabaseAnime() {
 
         console.log("[v0] Episode created:", newEpisode.id, "Language:", episodeData.language || "Japanese")
 
-        // Insert episode links
         for (const linkData of episodeData.links) {
           const platformName = linkData.platform.trim()
           if (!platformName || !linkData.url.trim()) {
@@ -377,6 +376,99 @@ export function useSupabaseAnime() {
     }
   }
 
+  const addEpisodes = async (
+    animeId: string,
+    episodes: Array<{
+      episode_number: number
+      title?: string
+      description?: string
+      duration?: string
+      thumbnail_url?: string
+      language?: string
+      links: Array<{
+        platform: string
+        url: string
+        quality?: string
+        file_size?: string
+      }>
+    }>,
+  ) => {
+    try {
+      console.log("[v0] Adding episodes to anime:", animeId)
+
+      for (const episodeData of episodes) {
+        const { data: newEpisode, error: episodeError } = await supabase
+          .from("episodes")
+          .insert({
+            anime_id: animeId,
+            episode_number: episodeData.episode_number,
+            title: episodeData.title || null,
+            description: episodeData.description || null,
+            duration: episodeData.duration || null,
+            thumbnail_url: episodeData.thumbnail_url || null,
+            language: episodeData.language || "Japanese",
+          })
+          .select()
+          .single()
+
+        if (episodeError) {
+          console.error("[v0] Error inserting episode:", episodeError)
+          continue
+        }
+
+        console.log("[v0] Episode created:", newEpisode.id)
+
+        for (const linkData of episodeData.links) {
+          const platformName = linkData.platform.trim()
+          if (!platformName || !linkData.url.trim()) {
+            console.warn("[v0] Skipping link with missing platform or URL")
+            continue
+          }
+
+          const { error: linkError } = await supabase
+            .from("episode_links")
+            .insert({
+              episode_id: newEpisode.id,
+              platform: platformName,
+              url: linkData.url.trim(),
+              quality: linkData.quality?.trim() || null,
+              file_size: linkData.file_size?.trim() || null,
+            })
+            .select()
+            .single()
+
+          if (linkError) {
+            console.error("[v0] Error inserting episode link:", linkError)
+            continue
+          }
+
+          console.log("[v0] Link created for episode:", newEpisode.id)
+        }
+      }
+
+      const { data: currentAnime, error: fetchError } = await supabase
+        .from("anime")
+        .select("episode_count")
+        .eq("id", animeId)
+        .single()
+
+      if (!fetchError && currentAnime) {
+        const newEpisodeCount = currentAnime.episode_count + episodes.length
+        await supabase.from("anime").update({ episode_count: newEpisodeCount }).eq("id", animeId)
+      }
+
+      console.log("[v0] Episodes added successfully")
+
+      // Refresh anime list
+      await fetchAnime()
+
+      return true
+    } catch (error) {
+      console.error("[v0] Error in addEpisodes:", error)
+      throw error
+    }
+  }
+
   return {
     anime,
     loading,
@@ -384,6 +476,7 @@ export function useSupabaseAnime() {
     updateAnime,
     deleteAnime,
     addLinksToAnime,
+    addEpisodes,
     refetch: fetchAnime,
   }
 }
