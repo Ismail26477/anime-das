@@ -240,18 +240,42 @@ export function useSupabaseAnime() {
 
   const updateAnime = async (id: string, updates: Partial<AnimeWithDetails>) => {
     try {
+      const allowedFields = [
+        'title',
+        'description',
+        'synopsis',
+        'thumbnail_url',
+        'rating',
+        'release_year',
+        'status',
+        'studio_name',
+        'is_archived',
+        'episode_count'
+      ];
+
+      const dbUpdates: Record<string, any> = {};
+      allowedFields.forEach(field => {
+        if (field in updates) {
+          dbUpdates[field] = updates[field as keyof typeof updates];
+        }
+      });
+
+      console.log("[v0] Updating anime with:", dbUpdates);
+
       const { error } = await supabase
         .from("anime")
         .update({
-          ...updates,
+          ...dbUpdates,
           updated_at: new Date().toISOString(),
         })
         .eq("id", id)
 
       if (error) {
         console.error("[v0] Error updating anime:", error)
-        throw new Error("Failed to update anime")
+        throw new Error(error.message || "Failed to update anime")
       }
+
+      console.log("[v0] Anime updated successfully")
 
       // Refresh anime list
       await fetchAnime()
